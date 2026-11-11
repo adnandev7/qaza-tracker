@@ -82,9 +82,10 @@ export const fonts = {
   medium: "Inter_500Medium",
   semiBold: "Inter_600SemiBold",
   bold: "Inter_700Bold",
-  /** Scheherazade New — Arabic lines ONLY (Quran, hadith, niyyat).
-   *  Traditional Indo-Pak mushaf style, the script Indian users know. */
-  arabic: "ScheherazadeNew_400Regular",
+  /** IndoPak Nastaleeq — Arabic lines ONLY (Quran, hadith, niyyat).
+   *  Thick mushaf-style Nastaleeq, the script Indian users know.
+   *  Font file from Quranic Universal Library (Tarteel), resources/font/242. */
+  arabic: "IndoPakNastaleeq",
 } as const;
 
 /** On web, react-native-web resolves the @expo-google-fonts families the same

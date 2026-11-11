@@ -29,3 +29,8 @@ See `docs/shariah-basis.md` §8. Raw transcripts: `sources/transcripts/*.txt`
 - S2 site is Sunnirazvi leaning (S2 idiom matches Ala Hazrat's style) — matches our Maslak.
 - One loose source (not used) suggested 15-year fallback for both genders when bulugh unknown — **rejected travelling against S2 (12/9)** which matches videos 1 & 5 and the classical position.
 - S8 (Fatawa-e-Radhwiyya) is the anchor citation tying the whole method to Ala Hazrat's maslak, satisfying the user's requirement.
+
+## Assets and attribution
+
+- Arabic font: **IndoPak Nastaleeq** (Tarteel/QUL build of the Al Qalam-style Nastaleeq, Hanafi v4.2.2 with waqf lazmi), vendored at `QazaTrackerApp/assets/fonts/IndoPakNastaleeq.ttf`. Source: https://qul.tarteel.ai/resources/font/242 (direct file: https://static-cdn.tarteel.ai/qul/fonts/nastaleeq/Hanafi/normal-v4.2.2/with-waqf-lazmi/font.ttf). QUL's licence tab currently states no copyright info is on record for this resource (open question in TarteelAI/quranic-universal-library issue #990); credit "Arabic font: IndoPak Nastaleeq via Quranic Universal Library (Tarteel)" wherever the app lists credits.
+- Hadith attribution corrected 11 Nov 2026: WHY_QAZA id 2 is Sahih al-Bukhari 597 (Anas ibn Malik), parallel Sahih Muslim 684 (web-verified).

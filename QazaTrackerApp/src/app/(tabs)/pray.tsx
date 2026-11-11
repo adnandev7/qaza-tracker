@@ -291,8 +291,7 @@ const styles = StyleSheet.create({
   arabic: {
     fontFamily: fonts.arabic,
     fontSize: 24,
-    // Scheherazade New carries deep diacritics; needs ~2x to avoid clipping
-    lineHeight: 48,
+    // Nastaleeq carries its own tall metrics; no explicit lineHeight
     color: colors.ink,
     textAlign: "right",
     writingDirection: "rtl",

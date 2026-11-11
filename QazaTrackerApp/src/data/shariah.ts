@@ -83,7 +83,7 @@ export const PRAYER_SHORT: Record<Prayers, string> = {
   witr: "Witr",
 };
 
-/** Arabic prayer names (niyyat display only — Scheherazade New font, RTL). */
+/** Arabic prayer names (niyyat display only — IndoPak Nastaleeq font, RTL). */
 export const PRAYER_ARABIC: Record<Prayers, string> = {
   fajr: "الْفَجْرِ",
   zuhr: "الظُّهْرِ",
@@ -94,7 +94,7 @@ export const PRAYER_ARABIC: Record<Prayers, string> = {
 };
 
 /** Arabic niyyat line, matching the English helpers (awwali = earliest-first,
- *  aakhiri = latest-first). Displayed in Scheherazade New, RTL. */
+ *  aakhiri = latest-first). Displayed in IndoPak Nastaleeq, RTL. */
 export function niyyatArabic(
   prayer: Prayers,
   style: "earliestFirst" | "latestFirst"

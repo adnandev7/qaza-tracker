@@ -10,17 +10,17 @@ import { hydrate } from "@/store/useQazaStore";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  // Inter — the ONE Latin family (hierarchy via weight only); Scheherazade New
-  // for Arabic lines (Indo-Pak mushaf style).
-  // Fonts live in assets/fonts (copied from @expo-google-fonts) so web builds never
-  // reference node_modules paths, which some static hosts refuse to upload.
+  // Inter — the ONE Latin family (hierarchy via weight only); IndoPak Nastaleeq
+  // for Arabic lines (thick mushaf script familiar to Indian readers).
+  // Fonts live in assets/fonts (copied from their packages or vendored) so web builds
+  // never reference node_modules paths, which some static hosts refuse to upload.
   const [fontsLoaded, fontsError] = useFonts({
     Inter_300Light: require("../../assets/fonts/Inter_300Light.ttf"),
     Inter_400Regular: require("../../assets/fonts/Inter_400Regular.ttf"),
     Inter_500Medium: require("../../assets/fonts/Inter_500Medium.ttf"),
     Inter_600SemiBold: require("../../assets/fonts/Inter_600SemiBold.ttf"),
     Inter_700Bold: require("../../assets/fonts/Inter_700Bold.ttf"),
-    ScheherazadeNew_400Regular: require("../../assets/fonts/ScheherazadeNew_400Regular.ttf"),
+    IndoPakNastaleeq: require("../../assets/fonts/IndoPakNastaleeq.ttf"),
   });
 
   useEffect(() => {
