@@ -97,7 +97,7 @@ async function makeSquare() {
     .png()
     .toBuffer();
 
-  const gap = 12;
+  const gap = 18; // wider ivory gap keeps the gold ring scanner-safe
   const ringSide = plate + gap * 2;
   const ringSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}">
 <rect x="${(px - ringSide) / 2}" y="${(px - ringSide) / 2}" width="${ringSide}" height="${ringSide}" rx="${(ringSide * 0.26).toFixed(1)}" fill="none" stroke="${GOLD}" stroke-width="7"/>
@@ -105,12 +105,13 @@ async function makeSquare() {
   const ring = await sharp(Buffer.from(ringSvg)).png().toBuffer();
 
   const left = Math.round((px - plate) / 2);
-  const ringLeft = Math.round((px - ringSide) / 2);
   const top = left;
   await sharp(base)
     .composite([
       { input: icon, top, left },
-      { input: ring, top: ringLeft, left: ringLeft },
+      // the ring SVG is a full canvas with the ring already centered in it,
+      // so it composites at the origin
+      { input: ring, top: 0, left: 0 },
     ])
     .png()
     .toFile(squarePath);
@@ -133,7 +134,12 @@ async function makePoster(squarePng) {
 <text x="540" y="1165" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="28" font-weight="500" fill="${GOLD}">qaza-tracker-app.vercel.app/qaza-tracker.apk</text>
 <text x="540" y="1268" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" font-weight="400" fill="${ON_HERO_MUTED}">For Android. Install once, updates arrive on their own.</text>
 </svg>`;
-  await sharp(Buffer.from(svg)).png().toFile(posterPath);
+  const posterPng = await sharp(Buffer.from(svg)).png().toBuffer();
+  // write via temp + rename: viewers that hold the file open make direct
+  // writes fail on Windows
+  const tmp = posterPath + ".tmp.png";
+  fs.writeFileSync(tmp, posterPng);
+  fs.renameSync(tmp, posterPath);
 }
 
 /** Decode an image and confirm it scans back to the exact target URL. */
