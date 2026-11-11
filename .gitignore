@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# expo / build output
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native dirs are generated on demand (continuous native generation)
+android/
+ios/
+
+# logs and OS junk
+*.log
+.DS_Store
+Thumbs.db
+
+# secrets and signing material
+.env
+.env.*
+*.pem
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision

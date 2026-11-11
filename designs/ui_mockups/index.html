@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Qaza Tracker — UI Concept v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============ DESIGN TOKENS — Emerald & Ivory (v3) ============ */
+  :root{
+    --ivory:#F7F5EE; --card:#FFFFFF; --line:#E4E9E4;
+    --emerald:#0E5F4B; --emerald-2:#14654F; --emerald-3:#1D7A61;
+    --gold:#C9A227; --terra:#B4533A;
+    --ink:#12251E; --ink2:#51635B; --muted:#5E6E66; --faint:#77877F;
+    --tint-em:#ECF3EF; --tint-terra:#F8ECE6;
+    --shadow-em:rgba(19,74,58,.22);
+    /* v3 spacing scale — 4/8px multiples only */
+    --gap:12px;          /* rhythm between blocks       */
+    --pad:16px;          /* one card padding everywhere */
+    --side:18px;         /* screen side gutter          */
+    --tap:44px;          /* minimum touch target        */
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{
+    font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1500px 950px at 50% -260px, #123B31 0%, #1C5342 36%, #3E7A63 64%, rgba(62,122,99,0) 96%),
+      radial-gradient(1100px 720px at 8% 34%, rgba(62,122,99,.22), transparent 70%),
+      radial-gradient(1000px 700px at 94% 58%, rgba(29,122,97,.16), transparent 72%),
+      linear-gradient(180deg,#EFF0E5 0%,#F6F3EA 30%,#F6F3EA 100%);
+    background-attachment:fixed;
+    min-height:100vh; padding:64px 28px 90px;
+  }
+  body::after{ /* faint water-grain stipple over the gallery backdrop (pure CSS) */
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.4;
+    background-image:
+      radial-gradient(rgba(18,59,49,.05) 1px, transparent 1.1px),
+      radial-gradient(rgba(201,162,39,.035) 1px, transparent 1.1px);
+    background-size:26px 26px, 41px 41px;
+    background-position:0 0, 13px 19px;
+  }
+
+  .page-head{text-align:center;margin-bottom:58px}
+  .orn-rule{display:flex;align-items:center;justify-content:center;gap:12px;color:var(--gold);margin-bottom:14px}
+  .orn-rule .hair{width:82px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,162,39,.75))}
+  .orn-rule .hair:last-child{background:linear-gradient(270deg,transparent,rgba(201,162,39,.75))}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .page-head h1{
+    font-weight:700;font-size:clamp(38px,5vw,58px);line-height:1.06;color:#F6F3EA;
+    letter-spacing:-.02em;margin-top:10px;
+  }
+  .page-sub{margin-top:12px;font-weight:400;font-size:14.5px;color:rgba(246,243,234,.82);letter-spacing:.01em}
+
+  .gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:64px 56px;max-width:1560px;margin:0 auto}
+  .cell{flex:0 0 auto}
+  @media(min-width:1080px){
+    .cell:nth-child(3n+2){margin-top:56px}
+    .cell:nth-child(3n){margin-top:20px}
+  }
+
+  .frame-cap{text-align:center;margin-top:22px}
+  .frame-cap b{display:block;font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .frame-cap span{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .fig{display:flex;flex-direction:column;align-items:center}
+
+  .page-foot{margin-top:90px;text-align:center}
+  .swatches{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
+  .sw{width:30px;height:30px;border-radius:10px;border:1px solid rgba(18,37,30,.14);box-shadow:0 4px 10px -4px var(--shadow-em)}
+  .samp{font-size:11.5px;color:var(--ink2);letter-spacing:.02em;font-weight:400}
+  .foot-chip{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:9px 18px;border-radius:999px;
+    background:rgba(255,255,255,.82);border:1px solid var(--line);font-size:11.5px;color:var(--ink2);font-weight:500}
+
+  /* ============ DEVICE ============ */
+  .device{
+    position:relative;width:414px;padding:11px;border-radius:62px;
+    background:linear-gradient(155deg,#1B2E26 0%,#12211B 55%,#0C1712 100%);
+    box-shadow:
+      0 46px 90px -22px rgba(19,74,58,.45),
+      0 18px 40px -18px rgba(18,37,30,.4),
+      inset 0 0 0 1.5px rgba(210,228,216,.24),
+      inset 0 0 0 7px #081009;
+    animation:rise .9s cubic-bezier(.16,.7,.2,1) both;
+    transition:transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s;
+  }
+  .cell:nth-child(1) .device{animation-delay:.05s}
+  .cell:nth-child(2) .device{animation-delay:.15s}
+  .cell:nth-child(3) .device{animation-delay:.25s}
+  .cell:nth-child(4) .device{animation-delay:.35s}
+  .cell:nth-child(5) .device{animation-delay:.45s}
+  .cell:nth-child(6) .device{animation-delay:.55s}
+  @keyframes rise{from{opacity:0;transform:translateY(34px) scale(.985)}to{opacity:1;transform:none}}
+  .device:hover{transform:translateY(-10px);box-shadow:
+      0 60px 110px -22px rgba(19,74,58,.52),0 24px 50px -18px rgba(18,37,30,.42),
+      inset 0 0 0 1.5px rgba(210,228,216,.3),inset 0 0 0 7px #081009}
+  .device::before{
+    content:"";position:absolute;left:-2.5px;top:150px;width:3px;height:34px;border-radius:3px 0 0 3px;background:#152420;
+    box-shadow:0 48px 0 #152420, 0 96px 0 0 #152420;
+  }
+  .device::after{content:"";position:absolute;right:-2.5px;top:190px;width:3px;height:58px;border-radius:0 3px 3px 0;background:#152420}
+
+  .screen{
+    position:relative;width:392px;height:844px;border-radius:51px;overflow:hidden;
+    background:var(--ivory);display:flex;flex-direction:column;
+  }
+  .island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:122px;height:34px;border-radius:20px;background:#0A1511;z-index:50}
+  .island::after{content:"";position:absolute;right:11px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;
+    background:radial-gradient(circle 3px at 30% 65%, #2c3d4d 0 100%, transparent 0), #050807}
+
+  .statusbar{height:56px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:16px 30px 0;font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.01em}
+  .statusbar svg{display:block}
+
+  .homebar{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;
+    background:rgba(18,37,30,.92);z-index:60}
+
+  .ui{flex:1;display:flex;flex-direction:column;padding:10px var(--side) 4px;overflow:hidden;position:relative;z-index:1}
+
+  /* ============ v3 SHARED RHYTHM ============ */
+  .stack{display:flex;flex-direction:column;gap:var(--gap);min-height:0}
+  .cta{margin-top:auto;flex:0 0 auto;padding:16px 0 20px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:var(--pad);
+    box-shadow:0 12px 26px -14px var(--shadow-em), inset 0 1px 0 #fff}
+
+  /* ============ SHARED UI ============ */
+  .eyebrow.s{color:var(--emerald)}
+  .eyebrow.onlight{color:var(--muted)}
+  .num{font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+
+  .hero{
+    position:relative;overflow:hidden;border-radius:24px;color:#F7F5EE;flex:0 0 auto;
+    background:linear-gradient(150deg,#0E5F4B 0%,#14654F 46%,#1D7A61 100%);
+    box-shadow:0 20px 38px -16px rgba(11,61,48,.5), inset 0 1px 0 rgba(236,243,239,.28), inset 0 -1px 0 rgba(7,42,32,.35);
+  }
+  .hero::before{content:"";position:absolute;inset:0;mix-blend-mode:soft-light;
+    background:
+      radial-gradient(340px 210px at 18% -8%, rgba(236,243,239,.35), transparent 68%),
+      radial-gradient(300px 220px at 108% 55%, rgba(9,48,38,.55), transparent 70%),
+      radial-gradient(220px 160px at 55% 118%, rgba(120,190,160,.2), transparent 72%);
+    opacity:.9}
+  .hero > *{position:relative;z-index:2}
+  .hero .sky{position:absolute;left:-4px;right:-4px;bottom:-3px;width:calc(100% + 8px);height:auto;
+    color:rgba(201,162,39,.26);z-index:1}
+  .hero .cresc{position:absolute;top:16px;right:18px;width:30px;height:30px;color:rgba(201,162,39,.55);z-index:1}
+  .hero .star{position:absolute;top:48px;right:27px;width:13px;height:13px;color:rgba(201,162,39,.45);z-index:1}
+  .bism{position:absolute;top:15px;left:19px;font-family:'Amiri',serif;font-size:16px;color:rgba(240,235,215,.62);z-index:2}
+
+  .btn-em{
+    display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;
+    padding:14px var(--pad);border-radius:16px;border:0;cursor:pointer;
+    background:linear-gradient(180deg,#116152 0%,#0D5847 100%);color:#F2F7F4;
+    font-family:'Inter',sans-serif;font-size:15px;font-weight:600;letter-spacing:.01em;
+    box-shadow:0 14px 26px -10px rgba(11,61,48,.5), inset 0 0 0 1px rgba(201,162,39,.62), inset 0 1px 0 rgba(236,243,239,.16);
+    text-align:center;
+  }
+  .btn-em:active{transform:translateY(1px)}
+  .ghost-link{display:inline-flex;align-items:center;gap:7px;min-height:44px;font-size:12.5px;font-weight:600;
+    color:var(--emerald);background:none;border:0;cursor:pointer;justify-content:center}
+
+  .chip{display:inline-flex;align-items:center;height:32px;gap:6px;padding:0 12px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card);font-size:11px;font-weight:500;color:var(--ink2);box-shadow:0 3px 8px -4px rgba(19,74,58,.12)}
+  .chip.sel{border-color:var(--gold);background:var(--tint-em);color:var(--ink);font-weight:600;
+    box-shadow:0 0 0 3px rgba(201,162,39,.16), 0 3px 8px -4px rgba(19,74,58,.14)}
+  .chip .sub{opacity:.6;font-weight:400}
+
+  .step{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 14px}
+  .step .lab{flex:1;min-width:0}
+  .step .lab b{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:1px}
+  .step .lab span{font-size:10.5px;line-height:1.45;color:var(--muted);display:block}
+  .snum{font-size:30px;font-weight:700;color:var(--ink);min-width:44px;text-align:center;
+    font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .sbtn{width:40px;height:44px;flex:0 0 auto;border-radius:12px;border:1px solid #D5E2DB;background:var(--tint-em);
+    color:var(--emerald);display:flex;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 3px 6px -3px rgba(19,74,58,.25)}
+  .sbtn:active{transform:translateY(1px)}
+
+  .icon{width:100%;height:100%;display:block}
+  svg .st{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  .note-line{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);font-weight:500}
+  .note-line svg{color:var(--emerald);flex:0 0 auto}
+
+  .pbar{height:8px;border-radius:99px;background:rgba(8,42,32,.42);overflow:hidden;position:relative}
+  .pfill{position:absolute;left:0;top:0;bottom:0;width:20px;border-radius:99px;
+    background:linear-gradient(90deg,#EBD268,#C9A227);box-shadow:0 0 10px rgba(201,162,39,.55)}
+
+  /* step progress (tiny) */
+  .steptop{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding:2px 0 8px}
+  .ghost-back{display:inline-flex;align-items:center;gap:5px;min-height:44px;margin:-6px 0;font-size:12px;font-weight:600;
+    color:var(--emerald);background:none;border:0;cursor:pointer}
+  .stepchip{display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;border:1px solid #CFE0D7;
+    background:var(--tint-em);font-size:10.5px;font-weight:600;letter-spacing:.14em;color:var(--emerald)}
+  .dots{display:flex;align-items:center;gap:6px;flex:0 0 auto;padding:0 2px 2px}
+  .dots .d{width:7px;height:7px;border-radius:50%;background:#CBDACE}
+  .dots .d.on{background:var(--emerald)}
+  .dots .d.cur{width:22px;border-radius:99px;background:var(--emerald);box-shadow:0 4px 8px -3px rgba(11,61,48,.5)}
+  .dots .ln{flex:1;height:1.5px;background:linear-gradient(90deg,#CBDACE,transparent);margin:0 3px}
+
+  /* ============ F1 · WELCOME ============ */
+  .brandrow{display:flex;align-items:center;justify-content:center;gap:9px;padding:2px 0 8px}
+  .brandrow .eyebrow{color:var(--ink);letter-spacing:.14em}
+  .brandrow svg{color:var(--gold)}
+
+  .f1-hero{padding:36px 20px 56px}
+  .f1-hero h2{font-weight:600;font-size:29px;line-height:1.14;letter-spacing:-.01em}
+  .f1-hero p{margin-top:8px;font-size:12.5px;line-height:1.55;font-weight:400;color:rgba(247,245,238,.88);max-width:296px}
+  .f1-hero p b{font-weight:600;color:#FFFDF6}
+  .nb{white-space:nowrap}
+
+  .privacy{display:flex;align-items:center;gap:10px;padding:11px 14px;
+    background:var(--tint-em);border:1px dashed #C4D8CE;border-radius:15px}
+  .privacy p{font-size:11px;line-height:1.5;color:var(--ink2);font-weight:400}
+  .privacy p b{font-weight:600;color:var(--ink)}
+  .privacy .lk{flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--emerald);
+    color:#EAF2EE;display:flex;align-items:center;justify-content:center;padding:5px}
+
+  .sectlab{display:block;margin-bottom:8px}
+  .pillrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .pill{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:16px;border:1px solid var(--line);
+    background:var(--card);font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;
+    font-family:'Inter',sans-serif;box-shadow:0 6px 14px -8px rgba(19,74,58,.16)}
+  .pill .dot{width:16px;height:16px;border-radius:50%;border:1.5px solid #B9CCC2;display:flex;align-items:center;justify-content:center}
+  .pill .dot::after{content:"";width:7px;height:7px;border-radius:50%;background:transparent}
+  .pill.sel{background:var(--emerald);border-color:rgba(201,162,39,.85);color:#F2F7F4;font-weight:600;
+    box-shadow:0 10px 18px -8px rgba(11,61,48,.5), inset 0 0 0 1px rgba(201,162,39,.55)}
+  .pill.sel .dot{border-color:rgba(242,247,244,.9)}
+  .pill.sel .dot::after{background:#F2F7F4}
+  .why{font-size:10.5px;line-height:1.5;color:var(--muted)}
+  .why.center{text-align:center}
+
+  .daysset .setrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+  .setchip{display:flex;align-items:baseline;justify-content:center;gap:5px;min-height:44px;border-radius:12px;background:var(--card);
+    border:1px solid var(--line);font-size:10.5px;font-weight:500;color:var(--ink2);box-shadow:0 3px 8px -4px rgba(19,74,58,.1)}
+  .setchip b{font-size:13px;font-weight:700;color:var(--emerald);
+    font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+
+  /* ============ QUESTION CARDS (F2 · F6) ============ */
+  .marginrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:9px}
+  .marginrow .chip{justify-content:center;min-height:44px;padding:0 4px;border-radius:12px;font-size:10.5px}
+
+  .estrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;
+    background:linear-gradient(140deg,#EDF4EF,#DFECE4);border:1px solid #CCDED4;border-radius:18px;box-shadow:none}
+  .estrow .lab{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--emerald)}
+  .estrow .est{font-size:13px;font-weight:500;color:var(--ink2);white-space:nowrap}
+  .estrow .est b{font-size:17px;font-weight:700;color:var(--ink);font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  .estrow .est span{font-size:11.5px;font-weight:500;color:var(--ink2)}
+
+  /* ============ F3 · RESULT ============ */
+  .f3-head{padding:4px 6px 0;text-align:center}
+  .f3-head .eyebrow{display:block;margin-bottom:7px;color:var(--muted)}
+  .f3-head h2{font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-.015em}
+  .f3-head h2 span{color:var(--emerald)}
+
+  .f3-hero{padding:22px 20px 76px;text-align:center}
+  .f3-hero .eyebrow{display:block;margin-bottom:8px;color:rgba(240,235,215,.8)}
+  .countrow{display:flex;align-items:baseline;justify-content:center;gap:14px}
+  .countrow .num{font-weight:700;font-size:66px;line-height:.95;letter-spacing:-.025em;
+    font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  .countrow .unit{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(240,235,215,.85);line-height:1.4}
+  .divline{height:1px;margin:16px auto 14px;width:62%;background:linear-gradient(90deg,transparent,rgba(201,162,39,.55),transparent)}
+  .f3-hero .rakats{font-size:30px;font-weight:700;line-height:1;letter-spacing:-.02em;
+    font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  .f3-hero .rakats small{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(240,235,215,.85);margin-left:8px}
+  .f3-foot{margin-top:12px;font-size:10.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(240,235,215,.78)}
+
+  .marginnote{display:flex;align-items:center;gap:12px}
+  .marginnote .ic{flex:0 0 auto;width:36px;height:36px;border-radius:12px;background:var(--tint-em);
+    color:var(--emerald);display:flex;align-items:center;justify-content:center;padding:7px}
+  .marginnote p{font-size:11.5px;line-height:1.5;color:var(--ink2)}
+  .marginnote p b{font-weight:600;color:var(--ink)}
+
+  .quotecard{text-align:center}
+  .quotecard .qmark{display:block;margin:0 auto 8px;width:18px;height:18px;color:var(--emerald)}
+  .quotecard p{font-size:15.5px;font-weight:500;line-height:1.4;color:var(--ink);letter-spacing:-.01em;text-wrap:balance}
+  .quotecard cite{display:block;margin-top:8px;font-style:normal;font-size:10.5px;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted)}
+
+  .midorn{flex:1;min-height:32px;display:flex;align-items:center;justify-content:center;gap:11px;color:var(--emerald)}
+  .midorn .hair{width:56px;height:1px;background:linear-gradient(90deg,transparent,rgba(14,95,75,.35))}
+  .midorn .hair:last-child{background:linear-gradient(270deg,transparent,rgba(14,95,75,.35))}
+
+  /* ------------ F4 · HOME ------------ */
+  .f4-top{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding:2px 0 0}
+  .f4-top .salaam{font-size:21px;font-weight:700;color:var(--ink);line-height:1.15;letter-spacing:-.02em}
+  .f4-top .date{margin-top:2px;font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .f4-right{display:flex;align-items:center;gap:8px}
+  .streakchip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;
+    background:var(--card);border:1px solid var(--line);color:var(--ink);font-size:10.5px;font-weight:600;
+    box-shadow:0 4px 10px -5px rgba(19,74,58,.2)}
+  .streakchip svg{color:var(--gold)}
+  .icbtn{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px -5px rgba(19,74,58,.2)}
+
+  .f4-hero{padding:16px 18px 64px}
+  .f4-hero .balrow{display:flex;align-items:baseline;gap:10px;margin-top:2px}
+  .f4-hero .num{font-size:44px;font-weight:700;line-height:1;letter-spacing:-.025em;color:#FBFAF4;
+    font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  .f4-hero .unit{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(240,235,215,.85);line-height:1.5}
+  .f4-hero .days{margin-left:auto;text-align:right;line-height:1.15}
+  .f4-hero .days b{font-size:21px;font-weight:700;color:#FBFAF4;font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  .f4-hero .days span{display:block;font-size:10.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,235,215,.78);margin-top:2px}
+  .pbarwrap{margin-top:12px}
+  .pbarmeta{display:flex;justify-content:space-between;margin-bottom:6px;font-size:10.5px;font-weight:500;letter-spacing:.03em;color:rgba(240,235,215,.88)}
+  .pbarmeta b{font-weight:600;color:#FFFDF6}
+
+  .plan h3{font-size:18px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .plan p.calc{font-size:12px;color:var(--ink2);line-height:1.5}
+  .plan p.calc b{color:var(--ink);font-weight:600}
+  .plan .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .sugg{margin-top:12px;display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 12px 8px 10px;border-radius:14px;
+    background:var(--tint-em);border:1px solid #CFE0D7}
+  .sugg .moon{flex:0 0 auto;width:28px;height:28px;color:var(--emerald)}
+  .sugg p{flex:1;font-size:11px;line-height:1.45;color:var(--ink2)}
+  .sugg p b{font-weight:600;color:var(--ink)}
+  .sugg .chev{color:var(--emerald);flex:0 0 auto;width:14px;height:14px}
+
+  .niyyat .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .niyyat p{font-size:12.5px;line-height:1.55;color:var(--ink2)}
+  .copypill{display:inline-flex;gap:6px;align-items:center;min-height:44px;margin:-8px 0;padding:0 10px;font-size:10.5px;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--emerald);background:none;border:0;cursor:pointer}
+  .cnt-chip{height:28px;padding:0 10px;border-radius:999px;background:var(--tint-em);border:1px solid #CFE0D7;
+    font-size:10.5px;font-weight:500;color:var(--emerald);display:inline-flex;align-items:center}
+
+  .statusrow{display:flex;gap:8px}
+  .statusrow .chip{flex:1;justify-content:flex-start;height:32px;min-height:32px}
+  .okchip{border-color:#C4DAD0;background:var(--tint-em);color:var(--emerald);font-weight:600}
+  .makruhchip{border-color:#E8CFC4;background:var(--tint-terra);color:#97452E;font-weight:500}
+  .living-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 3px rgba(14,95,75,.18);animation:breathe 2.6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{box-shadow:0 0 0 3px rgba(14,95,75,.18)}50%{box-shadow:0 0 0 6px rgba(14,95,75,.08)}}
+
+  .aidchip{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;border-radius:12px;
+    background:var(--card);border:1px solid var(--line);font-size:10.5px;line-height:1.45;font-weight:500;color:var(--muted)}
+  .aidchip svg{flex:0 0 auto;color:var(--faint)}
+
+  .tabbar{margin-top:auto;flex:0 0 auto;display:flex;align-items:stretch;gap:4px;background:var(--card);
+    border-top:1px solid var(--line);padding:8px 12px 28px;box-shadow:0 -10px 24px -18px var(--shadow-em)}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:9px 2px 8px;border-radius:15px;
+    cursor:pointer;position:relative;border:0;background:none;font-family:'Inter',sans-serif;
+    color:#6C7D74;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+  .tab svg{width:21px;height:21px}
+  .tab.on{background:var(--emerald);color:#F2F7F4;box-shadow:0 10px 18px -8px rgba(11,61,48,.5)}
+  .tab.on::after{content:"";position:absolute;bottom:4px;width:16px;height:2.5px;border-radius:2px;background:var(--gold)}
+
+  /* ------------ F5 · SESSION ------------ */
+  .f5-top{display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px}
+  .f5-top .eyebrow{flex:1;text-align:center;color:var(--ink);letter-spacing:.14em}
+  .circlebtn{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+    display:flex;align-items:center;justify-content:center;padding:9px;box-shadow:0 4px 10px -5px rgba(19,74,58,.2)}
+
+  .f5-hero{display:flex;align-items:center;padding:14px 18px 46px}
+  .f5-hero .cresc{top:12px;right:14px;width:24px;height:24px;color:rgba(201,162,39,.62)}
+  .f5-hero .sky{left:auto;right:-8px;bottom:-4px;width:64%;color:rgba(201,162,39,.34)}
+  .f5-hero .l{flex:1;min-width:0}
+  .f5-hero .l .eyebrow{display:block;margin-bottom:3px;color:rgba(240,235,215,.82)}
+  .f5-hero h3{font-size:30px;font-weight:700;line-height:1;color:#FBFAF4;letter-spacing:-.02em}
+  .f5-hero .no{margin-top:4px;font-size:10.5px;font-weight:500;letter-spacing:.06em;color:rgba(240,235,215,.88)}
+  .f5-hero .bigno{margin-left:12px;text-align:right}
+  .f5-hero .bigno b{display:block;font-size:30px;font-weight:700;line-height:1;color:#FBFAF4;
+    font-feature-settings:"tnum" 1;font-variant-numeric:tabular-nums}
+  .f5-hero .bigno span{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(240,235,215,.8)}
+
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .pchip{display:inline-flex;align-items:baseline;justify-content:center;gap:5px;min-height:44px;border-radius:12px;border:1px solid var(--line);
+    padding:0 4px;background:var(--card);cursor:pointer;font-family:'Inter',sans-serif;
+    box-shadow:0 3px 8px -4px rgba(19,74,58,.12)}
+  .pchip b{font-size:11.5px;font-weight:600;color:var(--ink)}
+  .pchip span{font-size:10.5px;font-weight:500;color:var(--muted);font-feature-settings:"tnum" 1}
+  .pchip.sel{background:var(--emerald);border-color:rgba(201,162,39,.85);box-shadow:0 0 0 3px rgba(201,162,39,.16),0 8px 16px -7px rgba(11,61,48,.5)}
+  .pchip.sel b{color:#FBFAF4}.pchip.sel span{color:rgba(240,235,215,.85)}
+
+  .f5-niyyat{padding:12px 16px 12px;text-align:left}
+  .f5-niyyat .ar{font-family:'Amiri',serif;font-size:19px;line-height:1.72;color:var(--ink);text-align:right;direction:rtl;margin-top:4px}
+  .f5-niyyat .tr{margin-top:4px;font-size:12px;font-weight:400;color:var(--muted)}
+  .f5-niyyat .mn{margin-top:2px;font-size:11.5px;line-height:1.48;color:var(--ink2)}
+
+  /* Takhfeef — collapsed by default */
+  .takh{padding:12px 16px 12px}
+  .takh .headrow{display:flex;align-items:center;gap:8px;min-height:44px}
+  .toghlp{display:flex;align-items:center;gap:8px;margin:-8px 0;min-height:44px}
+  .tog{flex:0 0 auto;width:48px;height:28px;border-radius:99px;background:var(--emerald);position:relative;
+    box-shadow:inset 0 1.5px 3px rgba(7,42,32,.4);cursor:pointer}
+  .tog::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#F7F9F6;
+    box-shadow:0 2px 5px rgba(18,37,30,.4)}
+  .tog.on{background:var(--emerald)}
+  .tog.off{background:#B9CCC2}
+  .tog.off::after{right:auto;left:3px}
+  .takh details{margin-top:4px}
+  .takh summary{list-style:none;display:flex;align-items:center;gap:6px;min-height:40px;margin:0 -6px;padding:0 6px;
+    font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--emerald);cursor:pointer;border-radius:10px}
+  .takh summary::-webkit-details-marker{display:none}
+  .takh summary .chev{width:13px;height:13px;transition:transform .25s ease}
+  .takh details[open] summary .chev{transform:rotate(90deg)}
+  .tlist{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:4px}
+  .tlist li{display:flex;align-items:flex-start;gap:9px;font-size:11px;line-height:1.45;color:var(--ink2)}
+  .tlist li b{font-weight:600;color:var(--ink)}
+  .tlist .ck{flex:0 0 auto;width:15px;height:15px;margin-top:1px;color:var(--emerald)}
+  .takh .foot{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:10.5px;line-height:1.45;color:var(--muted)}
+  .takh .foot b{font-weight:600;color:var(--emerald)}
+
+  .f5-note{text-align:center;font-size:11.5px;font-weight:500;color:var(--ink2)}
+
+  /* responsive */
+  @media(max-width:1079px){
+    .gallery{gap:56px 40px}
+  }
+  @media(max-width:470px){
+    body{padding:40px 8px 70px}
+    .device{transform:scale(.86);transform-origin:top center;margin-bottom:-96px}
+    .device:hover{transform:scale(.86) translateY(-8px)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<!-- ======= SVG SYMBOL LIBRARY (icons + ornaments only — simple geometric shapes) ======= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Mosque skyline silhouette: domes + minarets -->
+    <symbol id="sym-sky" viewBox="0 0 340 96">
+      <g fill="currentColor">
+        <!-- left minaret -->
+        <rect x="17" y="30" width="10" height="66" rx="3"/>
+        <rect x="13.5" y="44" width="17" height="4.5" rx="2"/>
+        <path d="M15 30 A7 6.5 0 0 1 29 30 Z"/>
+        <rect x="21" y="17" width="2" height="7" rx="1"/>
+        <circle cx="22" cy="14.5" r="2.2"/>
+        <!-- small left dome -->
+        <rect x="54" y="68" width="32" height="28" rx="2"/>
+        <path d="M54 69 A16 16 0 0 1 86 69 Z"/>
+        <rect x="69" y="44" width="2" height="10" rx="1"/>
+        <!-- central drum + big onion dome -->
+        <rect x="142" y="63" width="56" height="33" rx="2"/>
+        <path d="M142 64 Q144 46 161 39 Q170 35.5 179 39 Q196 46 198 64 Z"/>
+        <rect x="169" y="23" width="2" height="12" rx="1"/>
+        <circle cx="170" cy="20.5" r="2.6"/>
+        <!-- flanking domes -->
+        <rect x="118" y="74" width="28" height="22" rx="2"/>
+        <path d="M118 75 A14 14 0 0 1 146 75 Z"/>
+        <rect x="194" y="74" width="28" height="22" rx="2"/>
+        <path d="M194 75 A14 14 0 0 1 222 75 Z"/>
+        <!-- small right dome -->
+        <rect x="234" y="68" width="32" height="28" rx="2"/>
+        <path d="M234 69 A16 16 0 0 1 266 69 Z"/>
+        <rect x="249" y="44" width="2" height="10" rx="1"/>
+        <!-- right minaret -->
+        <rect x="303" y="30" width="10" height="66" rx="3"/>
+        <rect x="299.5" y="44" width="17" height="4.5" rx="2"/>
+        <path d="M301 30 A7 6.5 0 0 1 315 30 Z"/>
+        <rect x="307" y="17" width="2" height="7" rx="1"/>
+        <circle cx="308" cy="14.5" r="2.2"/>
+        <!-- ground line -->
+        <rect x="0" y="92" width="340" height="4" rx="2"/>
+      </g>
+    </symbol>
+
+    <!-- Crescent (circle minus offset circle, via mask) -->
+    <symbol id="sym-cres" viewBox="0 0 64 64">
+      <mask id="cresm"><rect width="64" height="64" fill="#fff"/><circle cx="44" cy="23" r="21" fill="#000"/></mask>
+      <circle cx="30" cy="32" r="24" fill="currentColor" mask="url(#cresm)"/>
+    </symbol>
+
+    <!-- 8-point star (two overlapped squares) -->
+    <symbol id="sym-star8" viewBox="0 0 48 48">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="13" y="13" width="22" height="22"/>
+        <rect x="13" y="13" width="22" height="22" transform="rotate(45 24 24)"/>
+      </g>
+    </symbol>
+
+    <!-- icons -->
+    <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 11.2 12 4.2l8.2 7"/><path d="M6.3 9.6V19.6h11.4V9.6"/><path d="M10 19.6v-4.6h4v4.6"/></g></symbol>
+    <symbol id="i-mat" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5.6" y="3.4" width="12.8" height="15.2" rx="3.4"/><path d="M9.6 18.6v-5.1a2.4 2.4 0 0 1 4.8 0v5.1"/><path d="M8.4 18.6l-.6 2.2M12 18.6v2.4M15.6 18.6l.6 2.2"/></g></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.4" width="14" height="17.2" rx="2.6"/><path d="M8.6 8.2h6.8M8.6 12h6.8M8.6 15.8h3.8"/></g></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M15 9l-1.7 4.3L9 15l1.7-4.3z"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="3.1"/><path d="M12 3.6v2.6M12 17.8v2.6M3.6 12h2.6M17.8 12h2.6M6.1 6.1l1.9 1.9M16 16l1.9 1.9M17.9 6.1 16 8M8 16l-1.9 1.9"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5.4" y="10.4" width="13.2" height="9.6" rx="2.8"/><path d="M8.6 10.4V8a3.4 3.4 0 0 1 6.8 0v2.4"/><path d="M12 14v2.4"/></g></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.6 5.4 8 12l6.6 6.6"/></g></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12h14.4M13.6 6.8 19.2 12l-5.6 5.2"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M8 12.4l2.6 2.6L16.3 9.2"/></g></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="8.6" width="10.4" height="11.6" rx="2.2"/><path d="M5.8 15.2V5.8a2.2 2.2 0 0 1 2.2-2.2h7"/></g></symbol>
+    <symbol id="i-dots" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/></g></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.6c.65 4.5 2.65 6.5 7.2 7.2-4.55.7-6.55 2.7-7.2 7.2-.65-4.5-2.65-6.5-7.2-7.2 4.55-.7 6.55-2.7 7.2-7.2Z"/><path fill="currentColor" d="M18.6 15.4c.3 2.1 1.25 3 3.3 3.35-2.05.35-3 1.3-3.3 3.4-.3-2.1-1.25-3.05-3.35-3.4 2.1-.35 3.05-1.25 3.35-3.35Z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.8"/><path d="M12 10.6v5.4"/><circle cx="12" cy="7.6" r=".4" fill="currentColor"/></g></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4 19 6v5.4c0 4.6-3.1 7.6-7 9.2-3.9-1.6-7-4.6-7-9.2V6z"/><path d="M9.2 11.8l2 2 3.6-4"/></g></symbol>
+  </defs>
+</svg>
+
+<!-- ============ PAGE HEADER ============ -->
+<header class="page-head">
+  <div class="orn-rule"><i class="hair"></i>
+    <svg class="icon" style="width:17px;height:17px;color:var(--gold)"><use href="#sym-star8"/></svg>
+    <svg class="icon" style="width:13px;height:13px;color:var(--gold)"><use href="#sym-cres"/></svg>
+    <i class="hair"></i>
+  </div>
+  <p class="eyebrow">UI Concept &middot; Version 3</p>
+  <h1>Qaza Tracker</h1>
+  <p class="page-sub">Adaptive onboarding &middot; Home &middot; Prayer session — emerald &amp; ivory, six frames</p>
+</header>
+
+<!-- ============ GALLERY ============ -->
+<main class="gallery">
+
+  <!-- ================= F1 · ONBOARDING / WELCOME (step 1 · male flow shown) ================= -->
+  <div class="cell fig">
+    <article class="device" aria-label="Phone mockup F1 — onboarding welcome">
+      <div class="screen">
+        <p class="island"></p>
+        <div class="statusbar">
+          <span>9:41</span>
+          <svg width="72" height="16" viewBox="0 0 72 16" style="color:var(--ink)">
+            <g fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="7" width="3" height="7" rx="1"/><rect x="10" y="4.5" width="3" height="9.5" rx="1"/><rect x="15" y="2" width="3" height="12" rx="1"/></g>
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M27.5 8.2a7.4 7.4 0 0 1 9.6 0"/><path d="M30 11a4 4 0 0 1 4.6 0"/><circle cx="32.3" cy="13.4" r="1.15" fill="currentColor" stroke="none"/></g>
+            <g><rect x="47" y="2.6" width="20" height="10.5" rx="3.2" fill="none" stroke="currentColor" opacity=".45" stroke-width="1.4"/><rect x="49" y="4.6" width="13" height="6.5" rx="1.6" fill="currentColor"/><path d="M68.6 6.2v3.4" stroke="currentColor" opacity=".5" stroke-width="1.6" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+
+        <div class="ui">
+          <div class="brandrow">
+            <svg class="icon" style="width:14px;height:14px"><use href="#sym-cres"/></svg>
+            <span class="eyebrow">Qaza Tracker</span>
+            <svg class="icon" style="width:14px;height:14px"><use href="#sym-star8"/></svg>
+          </div>
+
+          <!-- tiny step progress -->
+          <div class="dots" aria-label="Step 1 of 4">
+            <span class="d cur"></span><i class="ln"></i><span class="d"></span><i class="ln"></i><span class="d"></span><i class="ln"></i><span class="d"></span>
+          </div>
+
+          <!-- Khat hero -->
+          <section class="hero f1-hero" style="margin:8px 0 0">
+            <span class="bism" dir="rtl" lang="ar">بِسْمِ اللَّهِ</span>
+            <svg class="sky" viewBox="0 0 340 96" preserveAspectRatio="xMidYMax meet"><use href="#sym-sky"/></svg>
+            <svg class="cresc"><use href="#sym-cres"/></svg>
+            <svg class="star"><use href="#sym-star8"/></svg>
+            <h2>As&shy;-salāmu &lsquo;alaykum</h2>
+            <p>Count your lifetime qaza with the masail of the <b class="nb">Ahle Sunnat ulama</b>.</p>
+          </section>
+
+          <div class="stack" style="margin-top:12px;gap:10px">
+            <div class="privacy">
+              <span class="lk"><svg class="icon"><use href="#i-lock"/></svg></span>
+              <p><b>Saved on your device.</b> Nothing is uploaded.</p>
+            </div>
+
+            <div>
+              <span class="eyebrow s sectlab">Gender</span>
+              <div class="pillrow">
+                <button class="pill sel"><span class="dot"></span>Male</button>
+                <button class="pill"><span class="dot"></span>Female</button>
+              </div>
+              <p class="why" style="margin-top:8px">A few counting rules depend on this.</p>
+            </div>
+
+            <div class="card step">
+              <button class="sbtn" aria-label="Decrease"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="snum">25</div>
+              <button class="sbtn" aria-label="Increase"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 3v8M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="lab"><b>Age</b><span>We count from your age of obligation.</span></div>
+            </div>
+
+            <div class="daysset">
+              <span class="eyebrow s sectlab" style="text-align:center">One day = 20 rakats</span>
+              <div class="setrow">
+                <span class="setchip">Fajr <b>2</b></span><span class="setchip">Zuhr <b>4</b></span><span class="setchip">Asr <b>4</b></span>
+                <span class="setchip">Maghrib <b>3</b></span><span class="setchip">Isha <b>4</b></span><span class="setchip">Witr <b>3</b></span>
+              </div>
+              <p class="why center" style="margin-top:8px">Prayed in order — Fajr &rarr; &hellip; &rarr; Witr.</p>
+            </div>
+          </div>
+
+          <div class="cta">
+            <button class="btn-em">Begin</button>
+            <button class="ghost-link">How it works <svg style="width:13px;height:13px"><use href="#i-arrow"/></svg></button>
+          </div>
+        </div>
+        <p class="homebar"></p>
+      </div>
+    </article>
+    <figcaption class="frame-cap"><b>Onboarding · Welcome</b><span>Step 1 &middot; gender &amp; age — male flow</span></figcaption>
+  </div>
+
+  <!-- ================= F2 · ONBOARDING / SALAH HISTORY (step 3) ================= -->
+  <div class="cell fig">
+    <article class="device" aria-label="Phone mockup F2 — onboarding salah history">
+      <div class="screen">
+        <p class="island"></p>
+        <div class="statusbar">
+          <span>9:41</span>
+          <svg width="72" height="16" viewBox="0 0 72 16" style="color:var(--ink)">
+            <g fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="7" width="3" height="7" rx="1"/><rect x="10" y="4.5" width="3" height="9.5" rx="1"/><rect x="15" y="2" width="3" height="12" rx="1"/></g>
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M27.5 8.2a7.4 7.4 0 0 1 9.6 0"/><path d="M30 11a4 4 0 0 1 4.6 0"/><circle cx="32.3" cy="13.4" r="1.15" fill="currentColor" stroke="none"/></g>
+            <g><rect x="47" y="2.6" width="20" height="10.5" rx="3.2" fill="none" stroke="currentColor" opacity=".45" stroke-width="1.4"/><rect x="49" y="4.6" width="13" height="6.5" rx="1.6" fill="currentColor"/><path d="M68.6 6.2v3.4" stroke="currentColor" opacity=".5" stroke-width="1.6" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+
+        <div class="ui">
+          <div class="steptop">
+            <button class="ghost-back"><svg style="width:13px;height:13px"><use href="#i-back"/></svg> Back</button>
+            <span class="stepchip">STEP 3 OF 4</span>
+          </div>
+
+          <div class="dots" aria-label="Step 3 of 4">
+            <span class="d on"></span><i class="ln"></i><span class="d on"></span><i class="ln"></i><span class="d cur"></span><i class="ln"></i><span class="d"></span>
+          </div>
+
+          <div style="padding:8px 6px 0">
+            <h2 style="font-size:26px;font-weight:700;line-height:1.12;color:var(--ink);letter-spacing:-.015em">Your salah <span style="color:var(--emerald)">history</span></h2>
+            <p style="margin-top:4px;font-size:11.5px;font-weight:400;color:var(--muted)">Three numbers &mdash; that is all.</p>
+          </div>
+
+          <div class="stack" style="margin-top:12px;gap:10px">
+            <div class="card bulugh" style="display:flex;align-items:center;gap:14px;position:relative;overflow:hidden">
+              <div style="position:relative;font-size:44px;font-weight:700;line-height:1;color:var(--ink);letter-spacing:-.02em;font-feature-settings:'tnum' 1">13<small style="font-size:10.5px;font-weight:600;color:var(--emerald);letter-spacing:.12em;margin-left:5px;vertical-align:8px">YEARS</small></div>
+              <div class="why" style="flex:1"><b style="color:var(--ink);font-weight:600">Years since bulugh.</b> Not sure? Boys from 12 — the safe fallback.</div>
+            </div>
+
+            <div class="card step" style="padding:10px 8px 10px 14px">
+              <button class="sbtn" aria-label="Decrease"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="snum">0</div>
+              <button class="sbtn" aria-label="Increase"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 3v8M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="lab"><b>Years prayed regularly</b>
+                <span>We start counting after your last regular stretch.</span></div>
+            </div>
+
+            <div class="card step" style="padding:10px 8px 10px 14px">
+              <button class="sbtn" aria-label="Decrease"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="snum">0</div>
+              <button class="sbtn" aria-label="Increase"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 3v8M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="lab"><b>Years in safar (travel)</b>
+                <span>Travel halves a fard — count the halat you missed it in.</span></div>
+            </div>
+
+            <div class="card">
+              <span class="eyebrow s sectlab">Safety margin</span>
+              <div class="marginrow">
+                <button class="chip">Exact<div class="sub">0%</div></button>
+                <button class="chip sel">+5%</button>
+                <button class="chip">+10%</button>
+                <button class="chip">+20%</button>
+              </div>
+              <p class="why" style="margin-top:8px">Extra count for missed-in-doubt days.</p>
+            </div>
+          </div>
+
+          <div class="estrow" style="margin-top:12px">
+            <span class="lab">Estimate</span>
+            <span class="est"><b>≈ 4,983</b> days &nbsp;·&nbsp; <b>99,660</b> <span>rakats</span></span>
+          </div>
+
+          <div class="cta" style="padding-bottom:20px">
+            <button class="btn-em">Recount <svg style="width:15px;height:15px"><use href="#i-arrow"/></svg></button>
+          </div>
+        </div>
+        <p class="homebar"></p>
+      </div>
+    </article>
+    <figcaption class="frame-cap"><b>Onboarding · Your Salah History</b><span>Step 3 &middot; the three numbers</span></figcaption>
+  </div>
+  <!-- ================= F6 · ONBOARDING / HAYZ & NIFAS ESTIMATE (step 3 · female flow) ================= -->
+  <div class="cell fig">
+    <article class="device" aria-label="Phone mockup F6 — onboarding hayz estimate, female flow">
+      <div class="screen">
+        <p class="island"></p>
+        <div class="statusbar">
+          <span>9:41</span>
+          <svg width="72" height="16" viewBox="0 0 72 16" style="color:var(--ink)">
+            <g fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="7" width="3" height="7" rx="1"/><rect x="10" y="4.5" width="3" height="9.5" rx="1"/><rect x="15" y="2" width="3" height="12" rx="1"/></g>
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M27.5 8.2a7.4 7.4 0 0 1 9.6 0"/><path d="M30 11a4 4 0 0 1 4.6 0"/><circle cx="32.3" cy="13.4" r="1.15" fill="currentColor" stroke="none"/></g>
+            <g><rect x="47" y="2.6" width="20" height="10.5" rx="3.2" fill="none" stroke="currentColor" opacity=".45" stroke-width="1.4"/><rect x="49" y="4.6" width="13" height="6.5" rx="1.6" fill="currentColor"/><path d="M68.6 6.2v3.4" stroke="currentColor" opacity=".5" stroke-width="1.6" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+
+        <div class="ui">
+          <div class="steptop">
+            <button class="ghost-back"><svg style="width:13px;height:13px"><use href="#i-back"/></svg> Back</button>
+            <span class="stepchip">STEP 3 OF 5</span>
+          </div>
+
+          <div class="dots" aria-label="Step 3 of 5, female flow">
+            <span class="d on"></span><i class="ln"></i><span class="d on"></span><i class="ln"></i><span class="d cur"></span><i class="ln"></i><span class="d"></span><i class="ln"></i><span class="d"></span><i class="ln"></i><span class="d"></span>
+          </div>
+
+          <div style="padding:8px 6px 0">
+            <h2 style="font-size:26px;font-weight:700;line-height:1.12;color:var(--ink);letter-spacing:-.015em">Hayz &amp; <span style="color:var(--emerald)">nifas estimate</span></h2>
+            <p style="margin-top:4px;font-size:11.5px;font-weight:400;color:var(--muted)">A rough estimate &mdash; adjust anytime later.</p>
+          </div>
+
+          <!-- context: gender answer carried over from step 1 -->
+          <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+            <span class="chip sel" style="height:32px"><svg style="width:12px;height:12px;color:var(--emerald)"><use href="#i-check"/></svg>Female</span>
+            <span class="why">from step 1</span>
+          </div>
+
+          <div class="stack" style="margin-top:12px;gap:10px">
+            <div class="card step">
+              <button class="sbtn" aria-label="Decrease"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="snum">6</div>
+              <button class="sbtn" aria-label="Increase"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 3v8M3 7h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <div class="lab"><b>Days a month on average</b>
+                <span>Hayz days are exempted — never counted as owed.</span></div>
+            </div>
+
+            <div class="card" style="display:flex;align-items:center;gap:12px">
+              <span style="flex:0 0 auto;width:36px;height:36px;border-radius:12px;background:var(--tint-em);color:var(--emerald);display:flex;align-items:center;justify-content:center;padding:7px">
+                <svg class="icon"><use href="#sym-cres"/></svg>
+              </span>
+              <p class="why" style="flex:1"><b style="color:var(--ink);font-weight:600">Nifas</b> (after childbirth): 40 days, added once you log it.</p>
+            </div>
+
+            <div class="privacy">
+              <span class="lk"><svg class="icon"><use href="#i-lock"/></svg></span>
+              <p><b>Estimates are fine.</b> Adjust this later in Settings.</p>
+            </div>
+          </div>
+
+          <div class="midorn">
+            <i class="hair"></i>
+            <svg style="width:15px;height:15px"><use href="#sym-cres"/></svg>
+            <i class="hair"></i>
+          </div>
+
+          <div class="cta" style="padding-bottom:20px">
+            <button class="btn-em">Next <svg style="width:15px;height:15px"><use href="#i-arrow"/></svg></button>
+          </div>
+        </div>
+        <p class="homebar"></p>
+      </div>
+    </article>
+    <figcaption class="frame-cap"><b>Onboarding · Hayz Estimate</b><span>Step 3 &middot; female flow only</span></figcaption>
+  </div>
+
+  <!-- ================= F3 · ONBOARDING / QAZA COUNT (step 4 · result) ================= -->
+  <div class="cell fig">
+    <article class="device" aria-label="Phone mockup F3 — onboarding qaza count">
+      <div class="screen">
+        <p class="island"></p>
+        <div class="statusbar">
+          <span>9:41</span>
+          <svg width="72" height="16" viewBox="0 0 72 16" style="color:var(--ink)">
+            <g fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="7" width="3" height="7" rx="1"/><rect x="10" y="4.5" width="3" height="9.5" rx="1"/><rect x="15" y="2" width="3" height="12" rx="1"/></g>
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M27.5 8.2a7.4 7.4 0 0 1 9.6 0"/><path d="M30 11a4 4 0 0 1 4.6 0"/><circle cx="32.3" cy="13.4" r="1.15" fill="currentColor" stroke="none"/></g>
+            <g><rect x="47" y="2.6" width="20" height="10.5" rx="3.2" fill="none" stroke="currentColor" opacity=".45" stroke-width="1.4"/><rect x="49" y="4.6" width="13" height="6.5" rx="1.6" fill="currentColor"/><path d="M68.6 6.2v3.4" stroke="currentColor" opacity=".5" stroke-width="1.6" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+
+        <div class="ui">
+          <div class="f3-head">
+            <span class="eyebrow">Step 4 of 4</span>
+            <h2>Alhamdulillah &mdash; <span style="color:var(--emerald);display:inline-block">that is everything</span></h2>
+          </div>
+
+          <!-- Khat hero -->
+          <section class="hero f3-hero" style="margin:12px 0 0">
+            <span class="bism" dir="rtl" lang="ar">بِسْمِ اللَّهِ</span>
+            <svg class="sky" viewBox="0 0 340 96" preserveAspectRatio="xMidYMax meet"><use href="#sym-sky"/></svg>
+            <svg class="cresc"><use href="#sym-cres"/></svg>
+            <svg class="star"><use href="#sym-star8"/></svg>
+            <span class="eyebrow onlight" style="color:rgba(240,235,215,.8)">Your lifetime qaza</span>
+            <div class="countrow">
+              <span class="num">4,983</span>
+              <span class="unit">days<br>owed</span>
+            </div>
+            <div class="divline"></div>
+            <p class="rakats">99,660<small>rakats</small></p>
+            <p class="f3-foot">20 rakats a day &nbsp;=&nbsp; 17 fard + 3 witr</p>
+          </section>
+
+          <div class="stack" style="margin-top:12px;gap:10px">
+            <div class="card marginnote" style="padding:12px 16px">
+              <span class="ic"><svg class="icon"><use href="#i-shield"/></svg></span>
+              <p><b>238 days added</b> (+5%) &mdash; missed in doubt still count as owed.</p>
+            </div>
+
+            <div class="card quotecard" style="padding:14px 18px 12px">
+              <svg class="qmark" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="13" width="22" height="22"/><rect x="13" y="13" width="22" height="22" transform="rotate(45 24 24)"/></g></svg>
+              <p>Better an over-count than an under-count.</p>
+              <cite>The golden rule of qaza</cite>
+            </div>
+          </div>
+
+          <div class="midorn">
+            <i class="hair"></i>
+            <svg style="width:15px;height:15px"><use href="#sym-star8"/></svg>
+            <i class="hair"></i>
+          </div>
+
+          <div class="cta" style="padding-bottom:20px">
+            <button class="btn-em">Begin</button>
+            <p class="why" style="margin:0;display:flex;align-items:center;gap:6px;justify-content:center">
+              <svg style="width:12px;height:12px;color:var(--faint)"><use href="#i-lock"/></svg>
+              Saved on your device.
+            </p>
+          </div>
+        </div>
+        <p class="homebar"></p>
+      </div>
+    </article>
+    <figcaption class="frame-cap"><b>Onboarding · Your Qaza Count</b><span>Step 4 &middot; the result</span></figcaption>
+  </div>
+  <!-- ================= F4 · HOME / DASHBOARD ================= -->
+  <div class="cell fig">
+    <article class="device" aria-label="Phone mockup F4 — home dashboard">
+      <div class="screen">
+        <p class="island"></p>
+        <div class="statusbar">
+          <span>9:41</span>
+          <svg width="72" height="16" viewBox="0 0 72 16" style="color:var(--ink)">
+            <g fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="7" width="3" height="7" rx="1"/><rect x="10" y="4.5" width="3" height="9.5" rx="1"/><rect x="15" y="2" width="3" height="12" rx="1"/></g>
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M27.5 8.2a7.4 7.4 0 0 1 9.6 0"/><path d="M30 11a4 4 0 0 1 4.6 0"/><circle cx="32.3" cy="13.4" r="1.15" fill="currentColor" stroke="none"/></g>
+            <g><rect x="47" y="2.6" width="20" height="10.5" rx="3.2" fill="none" stroke="currentColor" opacity=".45" stroke-width="1.4"/><rect x="49" y="4.6" width="13" height="6.5" rx="1.6" fill="currentColor"/><path d="M68.6 6.2v3.4" stroke="currentColor" opacity=".5" stroke-width="1.6" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+
+        <div class="ui">
+          <div class="f4-top">
+            <div>
+              <p class="salaam">Assalamu alaikum</p>
+              <p class="date">Sun, 9 Nov &middot; 14 Jumada I</p>
+            </div>
+            <div class="f4-right">
+              <span class="streakchip"><svg style="width:12px;height:12px"><use href="#i-spark"/></svg>7-day streak</span>
+              <button class="icbtn" aria-label="Menu"><svg style="width:18px;height:18px"><use href="#i-dots"/></svg></button>
+            </div>
+          </div>
+
+          <!-- Khat hero -->
+          <section class="hero f4-hero" style="margin:12px 0 0">
+            <svg class="sky" viewBox="0 0 340 96" preserveAspectRatio="xMidYMax meet"><use href="#sym-sky"/></svg>
+            <svg class="cresc"><use href="#sym-cres"/></svg>
+            <svg class="star"><use href="#sym-star8"/></svg>
+            <span class="eyebrow onlight" style="display:block;margin-bottom:8px;color:rgba(240,235,215,.8)">Your Qaza Balance</span>
+            <div class="balrow">
+              <span class="num">99,660</span>
+              <span class="unit">rakats<br>remaining</span>
+              <span class="days"><b>4,983</b><span>days owed</span></span>
+            </div>
+            <div class="pbarwrap">
+              <div class="pbarmeta"><span>Completed <b>2 of 99,660</b></span><span><b>0.002%</b></span></div>
+              <div class="pbar"><i class="pfill"></i></div>
+            </div>
+          </section>
+
+          <div class="stack" style="margin-top:12px;gap:12px">
+            <section class="card plan" style="padding:14px 16px">
+              <div class="head">
+                <h3>Today&rsquo;s plan</h3>
+                <span class="chip" style="height:28px"><svg style="width:11px;height:11px"><use href="#i-mat"/></svg>20 rakats/day</span>
+              </div>
+              <p class="calc">At <b>20 a day</b>, done in <b>~13.7 years</b>, InshaAllah.</p>
+              <div class="sugg">
+                <svg class="moon"><use href="#sym-cres"/></svg>
+                <p><b>Tonight after Isha</b> &mdash; 6 rakats, one day&rsquo;s set.</p>
+                <svg class="chev" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5" class="st"/></svg>
+              </div>
+            </section>
+
+            <section class="card niyyat">
+              <div class="head">
+                <span class="eyebrow s">Niyyat</span>
+                <button class="copypill"><svg style="width:13px;height:13px"><use href="#i-copy"/></svg>Copy</button>
+              </div>
+              <p>&ldquo;Ya Allah, the first Fajr qaza owed to me &mdash; I intend to pray it now.&rdquo;</p>
+              <div class="foot" style="margin-top:10px">
+                <span class="cnt-chip">4,983 qazas left of Fajr</span>
+              </div>
+            </section>
+
+            <div class="statusrow">
+              <span class="chip okchip"><i class="living-dot"></i>Prayer allowed now</span>
+              <span class="chip makruhchip"><svg style="width:11px;height:11px;color:var(--terra)"><use href="#i-info"/></svg>Makruh window 18:02</span>
+            </div>
+
+            <div class="aidchip">
+              <svg style="width:13px;height:13px"><use href="#i-info"/></svg>
+              An aid, not a mufti &mdash; ask a mufti for doubts.
+            </div>
+          </div>
+
+          <nav class="tabbar" aria-label="Tab bar">
+            <button class="tab on"><svg class="icon"><use href="#i-home"/></svg><span>Home</span></button>
+            <button class="tab"><svg class="icon"><use href="#i-mat"/></svg><span>Pray</span></button>
+            <button class="tab"><svg class="icon"><use href="#i-log"/></svg><span>Log</span></button>
+            <button class="tab"><svg class="icon"><use href="#i-compass"/></svg><span>Masail</span></button>
+            <button class="tab"><svg class="icon"><use href="#i-gear"/></svg><span>Settings</span></button>
+          </nav>
+        </div>
+        <p class="homebar"></p>
+      </div>
+    </article>
+    <figcaption class="frame-cap"><b>Home · Dashboard</b><span>The daily companion</span></figcaption>
+  </div>
+
+  <!-- ================= F5 · PRAYER SESSION ================= -->
+  <div class="cell fig">
+    <article class="device" aria-label="Phone mockup F5 — prayer session">
+      <div class="screen">
+        <p class="island"></p>
+        <div class="statusbar">
+          <span>9:41</span>
+          <svg width="72" height="16" viewBox="0 0 72 16" style="color:var(--ink)">
+            <g fill="currentColor"><rect x="0" y="9" width="3" height="5" rx="1"/><rect x="5" y="7" width="3" height="7" rx="1"/><rect x="10" y="4.5" width="3" height="9.5" rx="1"/><rect x="15" y="2" width="3" height="12" rx="1"/></g>
+            <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M27.5 8.2a7.4 7.4 0 0 1 9.6 0"/><path d="M30 11a4 4 0 0 1 4.6 0"/><circle cx="32.3" cy="13.4" r="1.15" fill="currentColor" stroke="none"/></g>
+            <g><rect x="47" y="2.6" width="20" height="10.5" rx="3.2" fill="none" stroke="currentColor" opacity=".45" stroke-width="1.4"/><rect x="49" y="4.6" width="13" height="6.5" rx="1.6" fill="currentColor"/><path d="M68.6 6.2v3.4" stroke="currentColor" opacity=".5" stroke-width="1.6" stroke-linecap="round"/></g>
+          </svg>
+        </div>
+
+        <div class="ui">
+          <div class="f5-top">
+            <button class="circlebtn" aria-label="Back"><svg class="icon"><use href="#i-back"/></svg></button>
+            <span class="eyebrow">Qaza Session</span>
+            <button class="circlebtn" aria-label="Streak"><svg style="width:15px;height:15px;color:var(--gold)"><use href="#i-spark"/></svg></button>
+          </div>
+
+          <!-- compact khat hero — skyline clearly visible -->
+          <section class="hero f5-hero" style="margin:4px 0 0">
+            <svg class="sky" viewBox="0 0 340 96" preserveAspectRatio="xMaxYMax meet"><use href="#sym-sky"/></svg>
+            <svg class="cresc"><use href="#sym-cres"/></svg>
+            <div class="l">
+              <span class="eyebrow onlight">Prayer selected</span>
+              <h3>Fajr</h3>
+              <p class="no">Qaza №1 of 4,983</p>
+            </div>
+            <div class="bigno"><b>2</b><span>rakats</span></div>
+          </section>
+
+          <div class="stack" style="margin-top:12px;gap:10px">
+            <!-- prayer selector: clean 3×2, 44px targets -->
+            <div class="pgrid">
+              <button class="pchip sel"><b>Fajr</b><span>2</span></button>
+              <button class="pchip"><b>Zuhr</b><span>4</span></button>
+              <button class="pchip"><b>Asr</b><span>4</span></button>
+              <button class="pchip"><b>Maghrib</b><span>3</span></button>
+              <button class="pchip"><b>Isha</b><span>4</span></button>
+              <button class="pchip"><b>Witr</b><span>3</span></button>
+            </div>
+
+            <!-- niyyat moment -->
+            <section class="card f5-niyyat">
+              <span class="eyebrow s sectlab" style="margin-bottom:0">Niyyat — say from the heart</span>
+              <p class="ar" dir="rtl" lang="ar">نَوَيْتُ أَنْ أُصَلِّيَ قَضَاءَ أَوَّلِ فَجْرٍ</p>
+              <p class="tr">Nawaytu an usallī qadhā-a awwali Fajrin&hellip;</p>
+              <p class="mn">The first Fajr qaza owed to me &mdash; I intend to pray it now.</p>
+            </section>
+
+            <!-- takhfeef: summary chip + CSS-only expandable -->
+            <section class="card takh">
+              <div class="headrow">
+                <span class="chip sel" style="height:32px"><svg style="width:13px;height:13px;color:var(--emerald)"><use href="#i-check"/></svg>Takhfeef &middot; easier prayer ON</span>
+                <span class="tog" role="switch" aria-checked="true" aria-label="Takhfeef on" style="margin-left:auto"></span>
+              </div>
+              <details>
+                <summary>Learn more &mdash; the 5 rulings
+                  <svg class="chev" viewBox="0 0 24 24" style="color:var(--emerald)"><path d="M9.5 5.5 16 12l-6.5 6.5" class="st"/></svg>
+                </summary>
+                <ul class="tlist">
+                  <li><svg class="ck"><use href="#i-check"/></svg><span>Start straight from <b>Surah Fatiha</b></span></li>
+                  <li><svg class="ck"><use href="#i-check"/></svg><span>3rd/4th rakat of fard: <b>3&times; Subhan Allah</b> (no Thana)</span></li>
+                  <li><svg class="ck"><use href="#i-check"/></svg><span>Shortened durood after tashahhud</span></li>
+                  <li><svg class="ck"><use href="#i-check"/></svg><span>Tasbihaat <b>once each</b> in ruku &amp; sujud</span></li>
+                  <li><svg class="ck"><use href="#i-check"/></svg><span>Witr qunoot: <b>&ldquo;Allahumma-ghfir li&rdquo;</b> 1&ndash;3&times;</span></li>
+                </ul>
+                <p class="foot"><b>Arkaan are never shortened</b> &mdash; ruku, sujud and jalsa stillness stay wajib.</p>
+              </details>
+            </section>
+          </div>
+
+          <div class="midorn" style="min-height:16px">
+            <i class="hair"></i>
+            <svg style="width:15px;height:15px"><use href="#sym-star8"/></svg>
+            <i class="hair"></i>
+          </div>
+
+          <div class="cta" style="padding-bottom:20px">
+            <button class="btn-em"><svg style="width:16px;height:16px"><use href="#i-mat"/></svg>Mark Fajr done</button>
+            <p class="f5-note">On completion, the next qaza becomes the &lsquo;first&rsquo;.</p>
+          </div>
+        </div>
+        <p class="homebar"></p>
+      </div>
+    </article>
+    <figcaption class="frame-cap"><b>Prayer Session</b><span>The core experience — one qaza at a time</span></figcaption>
+  </div>
+</main>
+
+<!-- ============ PAGE FOOTER ============ -->
+<footer class="page-foot">
+  <div class="swatches" aria-hidden="true">
+    <span class="sw" style="background:#F7F5EE"></span>
+    <span class="sw" style="background:#0E5F4B"></span>
+    <span class="sw" style="background:#1D7A61"></span>
+    <span class="sw" style="background:#C9A227"></span>
+    <span class="sw" style="background:#12251E"></span>
+  </div>
+  <p class="samp">Sample profile — male, 25 &middot; counted from 12 &middot; 4,983 days (+238 margin) &middot; 99,660 rakats &middot; 2 completed &middot; 20 rakats/day &middot; 7-day streak &middot; Sun, 9 Nov</p>
+  <p class="samp" style="margin-top:8px">Male flow on F1&ndash;F3 · female hayz step on F6 · Inter (all Latin) · Amiri (Arabic only) — hand-drawn SVG, no photography</p>
+  <span class="foot-chip">
+    <svg style="width:13px;height:13px;color:var(--faint)"><use href="#i-info"/></svg>
+    An aid, not a mufti — consult a mufti for doubts.
+  </span>
+</footer>
+
+</body>
+</html>
