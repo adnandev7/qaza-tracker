@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.adnandev7.qazatracker",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "backgroundColor": "#123B31",
         "foregroundImage": "./assets/android-icon-foreground.png",

@@ -164,23 +164,55 @@ export function useBacklog(): {
   return { backlog, rows, warningNext };
 }
 
-/** Mark one qaza of a prayer done. Returns a tarteeb warning (or null). */
-export function markQazaDone(prayer: Prayers, rakats: number): string | null {
-  const { done, log } = state;
+/* ------------------------------ undo support ------------------------------- */
+
+/** Snapshot of the most recent mark, memory-only: undo is a "just now"
+ *  action, so it does not survive an app restart (nor should it). */
+let lastMark: { done: Record<Prayers, number>; log: QazaLogEntry[] } | null = null;
+
+/** Revert the most recent mark (single, multi or daily set). The Pray
+ *  screen offers this as a one-tap "Undo this mark" on the celebration
+ *  card, so an accidental tap never costs anything. */
+export function undoLastMark(): boolean {
+  if (!lastMark) return false;
+  setState({ done: lastMark.done, log: lastMark.log });
+  lastMark = null;
+  return true;
+}
+
+/* ------------------------------- mark actions ------------------------------ */
+
+/** Mark several qazas of ONE salah done in a single tap (the count field on
+ *  the Pray screen). Each qaza is logged as its own entry, and the mark is
+ *  capped honestly at what is still owed. Returns what was logged, the
+ *  rakats that adds up to, and any tarteeb warning (or null when there is
+ *  no profile). */
+export function markManyDone(
+  prayer: Prayers,
+  count: number
+): { logged: number; rakats: number; warning: string | null } | null {
+  const { profile, done, log } = state;
+  if (!profile) return null;
+  const backlog = computeBacklog(profile, state.marginPercent);
   const remaining = {} as Record<Prayers, number>;
-  const backlog = state.profile
-    ? computeBacklog(state.profile, state.marginPercent)
-    : null;
-  if (!backlog) return null;
   for (const r of rakatsPerPrayerRemaining(backlog, done)) {
     remaining[r.prayer] = r.remaining;
   }
+  if ((remaining[prayer] ?? 0) <= 0) {
+    return { logged: 0, rakats: 0, warning: null };
+  }
   const warned = tarteebWarning(remaining, prayer);
-  if (remaining[prayer] <= 0) return "That qaza does not appear to be owed.";
-  const newDone = { ...done, [prayer]: (done[prayer] ?? 0) + 1 };
-  const entry: QazaLogEntry = { ts: Date.now(), prayer, rakats };
-  setState({ done: newDone, log: [entry, ...log].slice(0, 2000) });
-  return warned;
+  const residentRakats: Record<Prayers, number> = { ...FARD_RAKATS, witr: WITR_RAKATS };
+  const n = Math.min(Math.max(1, Math.round(count)), remaining[prayer]);
+  const each = residentRakats[prayer];
+  lastMark = { done: { ...done }, log: [...log] };
+  const newDone = { ...done, [prayer]: (done[prayer] ?? 0) + n };
+  const newLog = [...log];
+  for (let i = 0; i < n; i++) {
+    newLog.unshift({ ts: Date.now(), prayer, rakats: each });
+  }
+  setState({ done: newDone, log: newLog.slice(0, 2000) });
+  return { logged: n, rakats: n * each, warning: warned };
 }
 
 /** Mark whole day-sets done in one tap (Fajr → Witr, one qaza of each per
@@ -216,6 +248,7 @@ export function markSetDone(
   if (logged === 0) {
     return { logged: 0, rakats: 0, remainingRakats: 0 };
   }
+  lastMark = { done: { ...done }, log: [...log] };
   const doneRakats = PRAYERS_IN_ORDER.reduce(
     (sum, p) => sum + (newDone[p] ?? 0) * residentRakats[p],
     0
@@ -230,6 +263,7 @@ export function markSetDone(
 
 export async function resetAll() {
   state = { ...initialState, ready: true };
+  lastMark = null;
   emit();
   try {
     await storage.removeItem(KEY);

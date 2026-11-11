@@ -1,12 +1,15 @@
 /**
  * Pray — the core companion screen, kept minimal:
- * pick salah → read niyyat → (takhfeef collapsed by default) → mark done.
- * Every mark answers two questions at once: what is left of this salah, and
- * what is left of the whole journey. The celebration card (gold star, gold
- * progress hairline) slides in and the page glides back to the top, so
- * picking the next qaza is one glance away. A one-tap "daily set" logs a
- * full day (Fajr → Witr) in order for when tapping six times feels heavy.
- * The makruh windows and myth warnings live in the Masail tab.
+ * pick salah → say how many you prayed (any amount, default 1) → read
+ * niyyat → (takhfeef collapsed by default) → mark done → undo if the tap
+ * was a mistake. Every mark answers two questions at once: what is left
+ * of this salah, and what is left of the whole journey. The celebration
+ * card (gold star, gold progress hairline) slides in and the page glides
+ * back to the top, so picking the next qaza is one glance away — and it
+ * carries an "Undo this mark" button, because accidents should never cost
+ * real data. A one-tap "daily set" logs a full day (Fajr → Witr) in order
+ * for when tapping six times feels heavy. The makruh windows and myth
+ * warnings live in the Masail tab.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -15,8 +18,8 @@ import {
   type ScrollViewInstance,
 } from "react-native";
 import {
-  Body, Button, Card, Chip, Divider, Expandable, KhatHero, Screen,
-  SectionTitle, Small, Toggle,
+  Body, Button, Card, Chip, Divider, Expandable, KhatHero, NumInput, Row,
+  Screen, SectionTitle, Small, Toggle,
 } from "@/components/ui";
 import {
   FARD_RAKATS,
@@ -29,7 +32,7 @@ import {
   niyyatArabic,
   type Prayers,
 } from "@/data/shariah";
-import { markQazaDone, markSetDone, useBacklog, useQaza } from "@/store/useQazaStore";
+import { markManyDone, markSetDone, undoLastMark, useBacklog, useQaza } from "@/store/useQazaStore";
 import { TermInfo } from "@/components/TermInfo";
 import { colors, fonts, radii, spacing } from "@/theme";
 
@@ -43,13 +46,17 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 /** The celebration shown after a mark. `progress` (0..1) drives the gold
  *  hairline; `warn` is a tarteeb note in a second box (the mark itself
  *  still succeeded); `warnOnly` switches to the warning palette (nothing
- *  was logged). */
+ *  was logged); `info` is a plain confirmation (no star, no progress);
+ *  `onUndo` (with `undoable`) offers one-tap reversal of the mark. */
 type Celebrate = {
   title: string;
   lines: string[];
   progress?: number;
   warn?: string;
   warnOnly?: boolean;
+  info?: boolean;
+  undoable?: boolean;
+  onUndo?: () => void;
 };
 
 /** Celebration card: fades and floats in, star and all. Remounts on every
@@ -81,12 +88,12 @@ function CelebrateCard({ c }: { c: Celebrate }) {
       accessibilityLiveRegion="polite"
     >
       <View style={styles.toastHead}>
-        {!c.warnOnly && <Text style={styles.toastStar}>✦</Text>}
+        {!c.warnOnly && !c.info && <Text style={styles.toastStar}>✦</Text>}
         <Text style={[styles.toastTitle, c.warnOnly && styles.toastTitleWarn]}>
           {c.title}
         </Text>
       </View>
-      {typeof c.progress === "number" && !c.warnOnly && (
+      {typeof c.progress === "number" && !c.warnOnly && !c.info && (
         <View style={styles.toastTrack}>
           <View style={[styles.toastFill, { width: `${Math.round(c.progress * 100)}%` }]} />
         </View>
@@ -101,6 +108,9 @@ function CelebrateCard({ c }: { c: Celebrate }) {
           <Text style={styles.toastLine}>{c.warn}</Text>
         </View>
       ) : null}
+      {c.undoable && c.onUndo && !c.warnOnly && (
+        <Button label="Undo this mark" variant="ghost" onPress={c.onUndo} />
+      )}
     </Animated.View>
   );
 }
@@ -109,6 +119,9 @@ export default function Pray() {
   const { backlog, rows, warningNext } = useBacklog();
   const { profile, niyyatStyle, rakatsPerDayPace } = useQaza();
   const [selected, setSelected] = useState<Prayers>("fajr");
+  // how many qazas of the picked salah to log with one tap (undefined
+  // while the field is mid-edit; treated as 1)
+  const [count, setCount] = useState<number | undefined>(1);
   const [takhfeef, setTakhfeef] = useState(true);
   const [celebrate, setCelebrate] = useState<Celebrate | null>(null);
   const scrollRef = useRef<ScrollViewInstance | null>(null);
@@ -120,6 +133,7 @@ export default function Pray() {
   const row = rows.find((r) => r.prayer === selected);
   const name = profile?.name?.trim();
   const withName = name ? `, ${name}` : "";
+  const requested = Math.max(1, Math.round(count ?? 1));
 
   /** one full day-set per tap, rounded from the daily pace */
   const sets = Math.max(1, Math.round(rakatsPerDayPace / RESIDENT_DAY_RAKATS));
@@ -128,6 +142,19 @@ export default function Pray() {
     setCelebrate(c);
     setCelebrateKey((k) => k + 1);
     scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
+  /** one-tap reversal: the store restores the exact pre-mark snapshot */
+  const onUndo = () => {
+    if (undoLastMark()) {
+      showAndGlideUp({
+        title: "Mark undone",
+        lines: ["The count went back to what it was. Nothing was lost."],
+        info: true,
+      });
+    } else {
+      setCelebrate(null);
+    }
   };
 
   const onMarkDone = () => {
@@ -143,24 +170,39 @@ export default function Pray() {
       });
       return;
     }
-    const rakats = residentRakats[selected];
-    // captured before the mark so the numbers describe this exact qaza
+    // captured before the mark so the numbers describe this exact mark
     const doneRakatsBefore = rows.reduce(
       (sum, r) => sum + r.done * r.rakatsResident,
       0
     );
-    const warning = markQazaDone(selected, rakats);
+    const result = markManyDone(selected, requested);
+    if (!result || result.logged === 0) {
+      showAndGlideUp({
+        title: "Nothing logged",
+        lines: ["That qaza does not appear to be owed."],
+        warnOnly: true,
+      });
+      return;
+    }
     const total = backlog.breakdown.totalRakats;
+    const after = doneRakatsBefore + result.rakats;
     showAndGlideUp({
-      title: `Alhamdulillah, ${rakats} rakats logged${withName}.`,
-      progress: Math.min(1, (doneRakatsBefore + rakats) / total),
+      title: `Alhamdulillah, ${fmt(result.rakats)} rakats logged${withName}.`,
+      progress: Math.min(1, after / total),
       lines: [
-        `${PRAYER_SHORT[selected]} qazas left: ${fmt(Math.max(0, row.remaining - 1))}`,
-        `Total remaining: ${fmt(Math.max(0, total - (doneRakatsBefore + rakats)))} rakats.`,
-        "Every qaza prayed is one less. InshaAllah, keep going.",
+        `${PRAYER_SHORT[selected]} qazas left: ${fmt(Math.max(0, row.remaining - result.logged))}.`,
+        `Total remaining: ${fmt(Math.max(0, total - after))} rakats.`,
+        result.logged < requested
+          ? `You entered ${fmt(requested)}, but only ${fmt(result.logged)} ${PRAYER_SHORT[selected]} qazas were still owed, so ${fmt(result.logged)} were logged.`
+          : "Every qaza prayed is one less. InshaAllah, keep going.",
       ],
-      warn: warning ?? undefined,
+      warn: result.warning ?? undefined,
+      undoable: true,
+      onUndo,
     });
+    // a fresh mark starts from one again, so a stale big number never
+    // logs more than intended on the next tap
+    setCount(1);
   };
 
   const onMarkSet = () => {
@@ -182,6 +224,8 @@ export default function Pray() {
         `Total remaining: ${fmt(result.remainingRakats)} rakats.`,
         "Every qaza prayed is one less. InshaAllah, keep going.",
       ],
+      undoable: true,
+      onUndo,
     });
   };
 
@@ -222,6 +266,19 @@ export default function Pray() {
           })}
         </View>
         {row && <Small>{fmt(row.remaining)} qazas outstanding</Small>}
+        <Row label="How many did you pray just now?">
+          <NumInput
+            value={count}
+            onChange={(v) =>
+              setCount(v === undefined ? undefined : Math.max(1, Math.min(9999, v)))
+            }
+            suffix="qazas"
+          />
+        </Row>
+        <Small>
+          Leave this at 1 for one qaza, or enter any number and mark them
+          together. Anything beyond what is still owed is capped honestly.
+        </Small>
       </Card>
 
       <Card>
@@ -261,7 +318,14 @@ export default function Pray() {
         )}
       </Card>
 
-      <Button label={`Mark ${PRAYER_SHORT[selected]} done`} onPress={onMarkDone} />
+      <Button
+        label={
+          requested === 1
+            ? `Mark ${PRAYER_SHORT[selected]} done`
+            : `Mark ${fmt(requested)} ${PRAYER_SHORT[selected]} qazas done`
+        }
+        onPress={onMarkDone}
+      />
       <Button
         label={`Mark daily set done · ${sets * RESIDENT_DAY_RAKATS} rakats`}
         variant="ghost"

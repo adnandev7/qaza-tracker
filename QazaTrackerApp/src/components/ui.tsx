@@ -42,6 +42,8 @@ export function Screen({
       {scroll ? (
         <ScrollView
           ref={scrollRef}
+          // taps on buttons still work while the keyboard is up
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             styles.content,
             { paddingBottom: layout.tabBarHeight + layout.tabBarFloat + insets.bottom + 16 },

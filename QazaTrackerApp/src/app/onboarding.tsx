@@ -12,8 +12,8 @@
  */
 
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { BackHandler, Platform, Pressable, StyleSheet, View } from "react-native";
 import { computeBacklog, type QazaProfile } from "@/engine/QazaEngine";
 import { setState } from "@/store/useQazaStore";
 import { TermInfo } from "@/components/TermInfo";
@@ -67,6 +67,21 @@ export default function Onboarding() {
   const [index, setIndex] = useState(0);
   const step = steps[index];
   const go = (dir: 1 | -1) => setIndex((i) => Math.min(steps.length - 1, Math.max(0, i + dir)));
+
+  // Android hardware back walks the wizard backwards (same as the on-screen
+  // Back button); from the first step it leaves the app, the natural default.
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (index > 0) {
+        go(-1);
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
 
   const profile: QazaProfile = {
     name: d.name.trim() || undefined,
