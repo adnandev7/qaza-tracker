@@ -83,7 +83,7 @@ export const PRAYER_SHORT: Record<Prayers, string> = {
   witr: "Witr",
 };
 
-/** Arabic prayer names (niyyat display only — Amiri font, RTL). */
+/** Arabic prayer names (niyyat display only — Scheherazade New font, RTL). */
 export const PRAYER_ARABIC: Record<Prayers, string> = {
   fajr: "الْفَجْرِ",
   zuhr: "الظُّهْرِ",
@@ -94,7 +94,7 @@ export const PRAYER_ARABIC: Record<Prayers, string> = {
 };
 
 /** Arabic niyyat line, matching the English helpers (awwali = earliest-first,
- *  aakhiri = latest-first). Displayed in Amiri, RTL. */
+ *  aakhiri = latest-first). Displayed in Scheherazade New, RTL. */
 export function niyyatArabic(
   prayer: Prayers,
   style: "earliestFirst" | "latestFirst"
@@ -231,10 +231,10 @@ export const WHY_QAZA = [
   },
   {
     id: 2,
-    source: "Sahih Muslim 685, narrated by Anas ibn Malik (may Allah be pleased with him)",
+    source: "Sahih al-Bukhari 597, narrated by Anas ibn Malik (may Allah be pleased with him)",
     arabic: "مَنْ نَسِيَ صَلَاةً فَلْيُصَلِّهَا إِذَا ذَكَرَهَا، لَا كَفَارَةَ لَهَا إِلَّا ذَلِكَ",
     text: "Whoever forgets a prayer, let him pray it when he remembers it; there is no expiation for it other than this.",
-    note: "The same ruling is reported in Sahih al-Bukhari 597.",
+    note: "The same ruling is reported in Sahih Muslim 684.",
   },
 ] as const;
 

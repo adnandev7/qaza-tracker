@@ -291,7 +291,8 @@ const styles = StyleSheet.create({
   arabic: {
     fontFamily: fonts.arabic,
     fontSize: 24,
-    lineHeight: 38,
+    // Scheherazade New carries deep diacritics; needs ~2x to avoid clipping
+    lineHeight: 48,
     color: colors.ink,
     textAlign: "right",
     writingDirection: "rtl",

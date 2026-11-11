@@ -10,7 +10,8 @@ import { hydrate } from "@/store/useQazaStore";
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
-  // Inter — the ONE Latin family (hierarchy via weight only); Amiri for Arabic lines.
+  // Inter — the ONE Latin family (hierarchy via weight only); Scheherazade New
+  // for Arabic lines (Indo-Pak mushaf style).
   // Fonts live in assets/fonts (copied from @expo-google-fonts) so web builds never
   // reference node_modules paths, which some static hosts refuse to upload.
   const [fontsLoaded, fontsError] = useFonts({
@@ -19,7 +20,7 @@ export default function RootLayout() {
     Inter_500Medium: require("../../assets/fonts/Inter_500Medium.ttf"),
     Inter_600SemiBold: require("../../assets/fonts/Inter_600SemiBold.ttf"),
     Inter_700Bold: require("../../assets/fonts/Inter_700Bold.ttf"),
-    Amiri_400Regular: require("../../assets/fonts/Amiri_400Regular.ttf"),
+    ScheherazadeNew_400Regular: require("../../assets/fonts/ScheherazadeNew_400Regular.ttf"),
   });
 
   useEffect(() => {

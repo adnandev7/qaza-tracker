@@ -82,8 +82,9 @@ export const fonts = {
   medium: "Inter_500Medium",
   semiBold: "Inter_600SemiBold",
   bold: "Inter_700Bold",
-  /** Amiri — Arabic lines ONLY (Bismillah decor, niyyat). */
-  arabic: "Amiri_400Regular",
+  /** Scheherazade New — Arabic lines ONLY (Quran, hadith, niyyat).
+   *  Traditional Indo-Pak mushaf style, the script Indian users know. */
+  arabic: "ScheherazadeNew_400Regular",
 } as const;
 
 /** On web, react-native-web resolves the @expo-google-fonts families the same
