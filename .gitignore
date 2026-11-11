@@ -16,6 +16,9 @@ ios/
 .DS_Store
 Thumbs.db
 
+# netlify local state
+.netlify/
+
 # secrets and signing material
 .env
 .env.*

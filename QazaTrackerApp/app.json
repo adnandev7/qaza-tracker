@@ -38,6 +38,17 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "8ce4e353-1ddc-4a90-9321-d0d603d86a2e"
+      }
+    },
+    "owner": "adnanexpo777"
   }
 }
