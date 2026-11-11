@@ -1,0 +1,37 @@
+# Files EAS Build should NOT upload with the build archive.
+# NOTE: when .easignore exists it REPLACES .gitignore rules for EAS uploads,
+# so everything from .gitignore is mirrored here plus the website APK copy.
+
+# dependencies
+node_modules/
+
+# expo / build output
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# native dirs are generated on demand (continuous native generation)
+android/
+ios/
+
+# logs and OS junk
+*.log
+.DS_Store
+Thumbs.db
+
+# netlify local state
+.netlify/
+
+# secrets and signing material
+.env
+.env.*
+*.pem
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+
+# the APK copy in public/ exists only for the website download link
+public/qaza-tracker.apk
