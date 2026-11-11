@@ -1,15 +1,16 @@
 /**
- * Pray — the core companion screen, kept minimal:
- * pick salah → say how many you prayed (any amount, default 1) → read
- * niyyat → (takhfeef collapsed by default) → mark done → undo if the tap
- * was a mistake. Every mark answers two questions at once: what is left
- * of this salah, and what is left of the whole journey. The celebration
- * card (gold star, gold progress hairline) slides in and the page glides
- * back to the top, so picking the next qaza is one glance away — and it
- * carries an "Undo this mark" button, because accidents should never cost
- * real data. A one-tap "daily set" logs a full day (Fajr → Witr) in order
- * for when tapping six times feels heavy. The makruh windows and myth
- * warnings live in the Masail tab.
+ * Pray — the core companion screen, kept minimal, in prayer order:
+ * read the niyyat → pick the salah and how many you prayed (any amount,
+ * default 1) → mark done → undo if the tap was a mistake. The takhfeef
+ * (sanctioned lightening) guidance sits below the mark, out of the way.
+ * Every mark answers two questions at once: what is left of this salah,
+ * and what is left of the whole journey. The celebration card (gold star,
+ * gold progress hairline) slides in and the page glides back to the top,
+ * so picking the next qaza is one glance away — and it carries an
+ * "Undo this mark" button, because accidents should never cost real data.
+ * A one-tap "daily set" logs a full day (Fajr → Witr) in order for when
+ * tapping six times feels heavy. The makruh windows and myth warnings
+ * live in the Masail tab.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -250,6 +251,15 @@ export default function Pray() {
       {celebrate && <CelebrateCard key={celebrateKey} c={celebrate} />}
 
       <Card>
+        <SectionTitle eyebrow="Niyyat · say it from the heart" title="Your intention" />
+        <Text style={styles.arabic}>
+          {niyyatArabic(selected, niyyatStyle)}
+        </Text>
+        {row && <Body>{helper.qazaSpecific(PRAYER_SHORT[selected])}</Body>}
+        <Small>Saying it aloud is mustahab (recommended), not required.</Small>
+      </Card>
+
+      <Card>
         <SectionTitle eyebrow="Which salah?" title="Pick what you are praying" />
         <View style={styles.grid}>
           {PRAYERS_IN_ORDER.map((p) => {
@@ -281,14 +291,29 @@ export default function Pray() {
         </Small>
       </Card>
 
-      <Card>
-        <SectionTitle eyebrow="Niyyat · say it from the heart" title="Your intention" />
-        <Text style={styles.arabic}>
-          {niyyatArabic(selected, niyyatStyle)}
-        </Text>
-        {row && <Body>{helper.qazaSpecific(PRAYER_SHORT[selected])}</Body>}
-        <Small>Saying it aloud is mustahab (recommended), not required.</Small>
-      </Card>
+      <Button
+        label={
+          requested === 1
+            ? `Mark ${PRAYER_SHORT[selected]} done`
+            : `Mark ${fmt(requested)} ${PRAYER_SHORT[selected]} qazas done`
+        }
+        onPress={onMarkDone}
+      />
+      <Button
+        label={`Mark daily set done · ${sets * RESIDENT_DAY_RAKATS} rakats`}
+        variant="ghost"
+        onPress={onMarkSet}
+      />
+      <Small style={{ textAlign: "center" }}>
+        One tap logs {sets} full day{sets > 1 ? "s" : ""} in order: Fajr →
+        Zuhr → Asr → Maghrib → Isha → Witr.
+      </Small>
+      {warningNext && <Small>{warningNext}</Small>}
+      <Small style={{ textAlign: "center" }}>
+        Keep the order Fajr → Zuhr → Asr → Maghrib → Isha → Witr while six
+        qazas are outstanding.
+      </Small>
+      <TermInfo term="tarteeb" align="center" />
 
       <Card>
         <View style={styles.takhfeefRow}>
@@ -317,30 +342,6 @@ export default function Pray() {
           </Expandable>
         )}
       </Card>
-
-      <Button
-        label={
-          requested === 1
-            ? `Mark ${PRAYER_SHORT[selected]} done`
-            : `Mark ${fmt(requested)} ${PRAYER_SHORT[selected]} qazas done`
-        }
-        onPress={onMarkDone}
-      />
-      <Button
-        label={`Mark daily set done · ${sets * RESIDENT_DAY_RAKATS} rakats`}
-        variant="ghost"
-        onPress={onMarkSet}
-      />
-      <Small style={{ textAlign: "center" }}>
-        One tap logs {sets} full day{sets > 1 ? "s" : ""} in order: Fajr →
-        Zuhr → Asr → Maghrib → Isha → Witr.
-      </Small>
-      {warningNext && <Small>{warningNext}</Small>}
-      <Small style={{ textAlign: "center" }}>
-        Keep the order Fajr → Zuhr → Asr → Maghrib → Isha → Witr while six
-        qazas are outstanding.
-      </Small>
-      <TermInfo term="tarteeb" align="center" />
     </Screen>
   );
 }

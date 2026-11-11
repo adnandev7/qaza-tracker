@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
     elevation: 6,
     shadowColor: colors.deepEmerald,
     shadowOpacity: 0.3,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   item: {
     paddingVertical: 4,
-    paddingHorizontal: 2,
+    paddingHorizontal: 5,
   },
   // icon over label, both always visible; the pill no longer resizes on
   // tab switch (labels never mount/unmount), which also keeps the rounded
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: "hidden",
   },
-  pillIdle: { paddingHorizontal: 7 },
+  pillIdle: { paddingHorizontal: 6 },
   pillActive: {
     backgroundColor: colors.ivory,
     paddingHorizontal: 11,
