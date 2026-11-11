@@ -19,6 +19,9 @@ Thumbs.db
 # netlify local state
 .netlify/
 
+# hosted release artifacts (kept out of git: 96 MB binaries)
+releases/
+
 # secrets and signing material
 .env
 .env.*

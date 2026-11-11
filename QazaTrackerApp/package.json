@@ -36,7 +36,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "deploy:web": "expo export --platform web && node scripts/patch-web.mjs && vercel deploy dist --prod --yes --project qaza-tracker-app",
+    "deploy:web": "expo export --platform web && node scripts/patch-web.mjs && node scripts/copy-apk.mjs && vercel deploy dist --prod --yes --project qaza-tracker-app",
     "lint": "expo lint"
   },
   "private": true
