@@ -20,19 +20,25 @@ export function Screen({
   style,
   scroll = true,
   scrollRef,
+  padTop = false,
 }: {
   children: ReactNode;
   style?: object;
   scroll?: boolean;
   /** Lets a screen glide its scroll position (e.g. back to top after a mark). */
   scrollRef?: React.RefObject<ScrollViewInstance | null>;
+  /** Header-less screens (welcome, onboarding) must clear the status bar
+   *  themselves; tab screens get top clearance from their navigator header. */
+  padTop?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const inner = (
     // flex: 1 bounds this View to the safe area's height so the ScrollView
     // below actually scrolls; without it the body grows to content height
     // and everything below the fold is unreachable (body overflow is hidden).
-    <View style={[styles.screenBody, style]}>
+    // padTop sits OUTSIDE the ScrollView so content never slides under the
+    // status bar while scrolling.
+    <View style={[styles.screenBody, padTop && { paddingTop: insets.top }, style]}>
       {scroll ? (
         <ScrollView
           ref={scrollRef}

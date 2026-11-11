@@ -95,7 +95,7 @@ export default function Onboarding() {
   switch (step) {
     case "welcome":
       return (
-        <Screen>
+        <Screen padTop>
           {header}
           <KhatHero>
             <Eyebrow style={{ color: colors.onHeroMuted }}>Qaza Tracker</Eyebrow>
@@ -156,7 +156,7 @@ export default function Onboarding() {
 
     case "bulugh":
       return (
-        <Screen>
+        <Screen padTop>
           {header}
           <Card>
             <SectionTitle
@@ -197,7 +197,7 @@ export default function Onboarding() {
 
     case "hayz":
       return (
-        <Screen>
+        <Screen padTop>
           {header}
           <Chip label="Female · from step 1" tone="emerald" />
           <Card>
@@ -233,7 +233,7 @@ export default function Onboarding() {
 
     case "history":
       return (
-        <Screen>
+        <Screen padTop>
           {header}
           <Card>
             <SectionTitle
@@ -277,7 +277,7 @@ export default function Onboarding() {
 
     case "result":
       return (
-        <Screen>
+        <Screen padTop>
           {header}
           <Eyebrow>Alhamdulillah, no more questions</Eyebrow>
           <KhatHero>

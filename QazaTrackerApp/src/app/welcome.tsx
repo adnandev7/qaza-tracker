@@ -15,7 +15,7 @@ import { colors, fonts, spacing } from "@/theme";
 
 export default function Welcome() {
   return (
-    <Screen>
+    <Screen padTop>
       <KhatHero>
         <Eyebrow style={{ color: colors.onHeroMuted }}>Qaza Tracker</Eyebrow>
         <H1 style={{ color: colors.onHero }}>As-salamu alaykum</H1>

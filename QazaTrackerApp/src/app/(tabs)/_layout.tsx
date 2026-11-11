@@ -114,7 +114,9 @@ const styles = StyleSheet.create({
     left: layout.screenGutter,
     right: layout.screenGutter,
     height: layout.tabBarHeight,
-    borderRadius: 999,
+    // exactly half the height: an oversized radius (999) is a known Android
+    // trap where the rounded background breaks once the view resizes
+    borderRadius: layout.tabBarHeight / 2,
     backgroundColor: colors.deepEmerald,
     flexDirection: "row",
     alignItems: "center",
@@ -136,7 +138,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
     height: 40,
-    borderRadius: 999,
+    // half the height, not 999: oversized radii break on Android when the
+    // pill resizes on tab switch (active label mounts/unmounts) and the
+    // background renders as a plain rectangle. overflow hidden clips the
+    // background to the rounded bounds on every resize.
+    borderRadius: 20,
+    overflow: "hidden",
   },
   pillIdle: { paddingHorizontal: 8 },
   pillActive: {
